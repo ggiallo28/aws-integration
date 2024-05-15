@@ -66,7 +66,6 @@ class AWSClientSettings(BaseModel):
         default="",
         description="Amazon Resource Name (ARN) that uniquely identifies the AWS resource. Typically used to reference specific AWS resources under the given credentials."
     )
-    _aws_client: Optional[Boto3ClientBuilder] = None
     
     @classmethod
     def get_aws_client(cls, settings, service_name) -> Optional[Boto3ClientBuilder]:

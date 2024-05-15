@@ -62,7 +62,7 @@ class AWSClientSettings(BaseModel):
     credentials_profile_name: str = Field(default="", description="Name of the AWS credentials profile to use.")
     endpoint_url: str = Field(default="", description="Custom endpoint URL, if using a non-standard AWS service endpoint.")
     iam_role_assigned: bool = Field(default=False, description="Indicates if the required IAM role is assigned.")
-    amazon_resource_name: str = Field(
+    caller_identity: str = Field(
         default="",
         description="Amazon Resource Name (ARN) that uniquely identifies the AWS resource. Typically used to reference specific AWS resources under the given credentials."
     )
@@ -109,7 +109,7 @@ class AWSClientSettings(BaseModel):
         client = cls.get_aws_client(v, service_name="sts")
         response = client.get_caller_identity()
         log.debug("AWS Caller Identity Response: %s", response)
-        v["amazon_resource_name"] = response["Arn"]
+        v["caller_identity"] = response["Arn"]
         
         return v
 

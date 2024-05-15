@@ -3,10 +3,13 @@ from pydantic import BaseModel, Field, model_validator
 from typing import Optional
 import boto3
 
+AWS_ACCES_KEY_LEN = 20
+AWS_SECRET_ACCES_KEY_LEN = 40
+
 
 class AWSClientSettings(BaseModel):
-    aws_access_key_id: str = Field(default="", min_length=20, max_length=20)
-    aws_secret_access_key: str = Field(default="", min_length=40, max_length=40)
+    aws_access_key_id: str = Field(default="")
+    aws_secret_access_key: str = Field(default="")
     region_name: str = Field(default="us-east-1")
     credentials_profile_name: str = Field(default="")
     endpoint_url: str = Field(default="")
@@ -23,6 +26,11 @@ class AWSClientSettings(BaseModel):
                 raise ValueError(
                     "Either provide a credentials profile name or both aws_access_key_id and aws_secret_access_key"
                 )
+            elif not (
+                len(v.aws_access_key_id) == AWS_ACCES_KEY_LEN
+                and len(v.aws_secret_access_key) == AWS_SECRET_ACCES_KEY_LEN
+            ):
+                raise ValueError("The access key or secret access key is invalid!")
         return v
 
     class Config:

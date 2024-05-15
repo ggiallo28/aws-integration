@@ -1,0 +1,10 @@
+{
+    "name": "AWS Client Configuration Manager",
+    "version": "0.0.1",
+    "description": "This plugin provides a robust and secure way to manage AWS client configurations directly from Python applications. It ensures that AWS credentials and region settings are correctly formatted and validated against current AWS standards. Key features include automatic validation of AWS region names against available regions, ensuring that user inputs are current and correct. This helps prevent runtime errors in AWS-related code by catching configuration errors early in the development cycle. Ideal for developers who require a fail-safe mechanism to handle AWS client settings within their Python applications using the Pydantic library.",
+    "author_name": "Gianluigi Mucciolo",
+    "author_url": "https://www.linkedin.com/in/ggiallo28/",
+    "plugin_url": "https://github.com/ggiallo28/aws-integration.git",
+    "tags": "aws, pydantic, configuration, security, cloud",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/5/5c/AWS_Simple_Icons_AWS_Cloud.svg"
+}

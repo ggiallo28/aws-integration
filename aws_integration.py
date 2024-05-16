@@ -136,18 +136,19 @@ class AWSSettings(BaseModel):
                 ):
                     raise ValueError("The access key or secret access key is invalid!")
 
-        cls.set_identity(v.dict())
+        values = cls.set_identity(v.dict())
+        v.caller_identity = values["caller_identity"]
 
         return v
 
     @model_validator(mode="before")
-    def set_identity(cls, v):
+    def set_identity(cls, values):
         client = cls.get_aws_client(v, service_name="sts")
         response = client.get_caller_identity()
         log.debug("AWS Caller Identity Response: %s", response)
-        v["caller_identity"] = response["Arn"]
+        values["caller_identity"] = response["Arn"]
 
-        return v
+        return values
 
     class Config:
         extra = "forbid"

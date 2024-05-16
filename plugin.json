@@ -1,6 +1,6 @@
 {
     "name": "AWS Client Configuration Manager",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "This plugin provides a robust and secure way to manage AWS client configurations. It ensures that AWS credentials and region settings are correct.",
     "author_name": "Gianluigi Mucciolo",
     "author_url": "https://www.linkedin.com/in/ggiallo28/",

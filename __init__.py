@@ -3,8 +3,9 @@ from cat.log import log
 
 AWS_PLUGIN_PREFIX = "aws_integration"
 
-class EmptyFactory(settings=None):
-    pass
+class EmptyFactory():
+    def __init__(self, settings=None):
+        pass
 
 def factory():
     """Create an AWS client using settings from the plugin."""

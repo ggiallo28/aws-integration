@@ -3,7 +3,7 @@ from cat.log import log
 
 AWS_PLUGIN_PREFIX = "aws_integration"
 
-class EmptyFactory():
+class EmptyFactory(settings=None):
     pass
 
 def factory():

@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field, model_validator
 from typing import Optional
 from cat.log import log
 import boto3
+import json
 
 AWS_ACCES_KEY_LEN = 20
 AWS_SECRET_ACCES_KEY_LEN = 40
@@ -145,7 +146,7 @@ class AWSSettings(BaseModel):
     def set_identity(cls, values):
         client = cls.get_aws_client(values, service_name="sts")
         response = client.get_caller_identity()
-        log.debug("AWS Caller Identity Response: %s", response)
+        log.debug("AWS Caller Identity Response: {}".format(json.dumps(response)))
         values["caller_identity"] = response["Arn"]
 
         return values

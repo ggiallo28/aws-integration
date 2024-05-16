@@ -143,7 +143,7 @@ class AWSSettings(BaseModel):
 
     @model_validator(mode="before")
     def set_identity(cls, values):
-        client = cls.get_aws_client(v, service_name="sts")
+        client = cls.get_aws_client(values, service_name="sts")
         response = client.get_caller_identity()
         log.debug("AWS Caller Identity Response: %s", response)
         values["caller_identity"] = response["Arn"]

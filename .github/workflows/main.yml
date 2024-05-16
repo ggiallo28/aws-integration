@@ -16,7 +16,7 @@ permissions:
   pull-requests: write
 
 env:
-  PLUGIN_JSON: "2.0.0"
+  PLUGIN_JSON: "1.2.0"
   TAG_EXISTS: false
   PLUGIN_NAME: "aws-integration"
 

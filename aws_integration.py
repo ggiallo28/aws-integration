@@ -96,8 +96,9 @@ class AWSSettings(BaseModel):
     )
 
     @classmethod
-    def get_aws(cls, settings) -> Optional[Boto3Builder]:
+    def get_aws(cls, settings, service_name=None) -> Optional[Boto3Builder]:
         return Boto3Builder(
+            service_name=service_name,
             profile_name=settings.get("credentials_profile_name"),
             aws_access_key_id=settings.get("aws_access_key_id"),
             aws_secret_access_key=settings.get("aws_secret_access_key"),
@@ -127,7 +128,7 @@ class AWSSettings(BaseModel):
             if not v.credentials_profile_name:
                 if not v.aws_access_key_id or not v.aws_secret_access_key:
                     raise ValueError(
-                        "Either provide a credentials profile name or both aws_access_key_id and aws_secret_access_key"
+                        "Enable the IAM role or provide a credentials profile name or both aws_access_key_id and aws_secret_access_key."
                     )
                 elif not (
                     len(v.aws_access_key_id) == AWS_ACCES_KEY_LEN

@@ -1,4 +1,5 @@
 from cat.mad_hatter.mad_hatter import MadHatter
+from cat.mad_hatter.decorators import tool, hook, plugin
 from cat.log import log
 
 AWS_PLUGIN_PREFIX = "aws_integration"
@@ -78,3 +79,6 @@ class Boto3:
         return self.factory_instance.get_resource(
             service_name, settings or self.settings
         )
+
+
+__all__ = ["Boto3"]

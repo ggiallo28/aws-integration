@@ -4,6 +4,7 @@ from typing import Optional
 from cat.log import log
 import boto3
 import json
+from . import Boto3
 
 AWS_ACCES_KEY_LEN = 20
 AWS_SECRET_ACCES_KEY_LEN = 40

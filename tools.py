@@ -50,24 +50,27 @@ def get_aws_identity_info(tool_input, cat):
 
 
 @tool(
-    "AWS Self-Permission Account ID Retrieval",
+    "AWS Self-Permission Policies Information",
     return_direct=False,
     examples=[
-        "What is my AWS account ID?",
-        "Show me my AWS account number.",
-        "Which AWS account am I using?",
-        "Retrieve my AWS account ID.",
-        "Give me the account ID for my AWS account.",
+        "What permissions do I currently have?",
+        "List the policies attached to my AWS IAM identity.",
+        "What policies are associated with my IAM role?",
+        "Show me the policies attached to my current IAM user or role.",
+        "Retrieve the names of the policies attached to my AWS identity.",
     ],
 )
-def get_account_id(tool_input, cat):
+def get_policies(tool_input, cat):
     """
-    Return the AWS account ID of the currently authenticated identity.
+    Return the permissions (policies attached to the current AWS IAM identity).
 
-    Use this tool to retrieve the AWS account ID. The function returns the account ID as a string.
+    Use this tool when you need to retrieve the list of policies attached to the current AWS IAM identity.
+    This identity could be an IAM user or an IAM role. The function will return a list of policy names
+    attached to the user or role.
 
-    Note: This tool only works for retrieving the account ID for the current authenticated AWS identity
-    and does not take an identity as input.
+    Note: This tool only works for retrieving permissions information for the current authenticated
+    AWS IAM user or role and does not take an identity as input. It will fetch the policies attached to the
+    identity that is making the request.
     """
     try:
         identity_type, identity_name, identity_arn = get_identity_info()
@@ -97,12 +100,14 @@ def get_account_id(tool_input, cat):
 
 
 @tool(
-    "AWS Account ID Retrieval",
+    "AWS Self-Permission Account ID Retrieval",
     return_direct=False,
     examples=[
         "What is my AWS account ID?",
         "Show me my AWS account number.",
         "Which AWS account am I using?",
+        "Retrieve my AWS account ID.",
+        "Give me the account ID for my AWS account.",
     ],
 )
 def get_account_id(tool_input, cat):
@@ -110,6 +115,9 @@ def get_account_id(tool_input, cat):
     Return the AWS account ID of the currently authenticated identity.
 
     Use this tool to retrieve the AWS account ID. The function returns the account ID as a string.
+
+    Note: This tool only works for retrieving the account ID for the current authenticated AWS identity
+    and does not take an identity as input.
     """
     try:
         response = sts_client.get_caller_identity()

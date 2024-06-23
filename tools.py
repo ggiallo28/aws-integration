@@ -17,7 +17,7 @@ def get_identity_info():
 
 @tool(
     "AWS Self-Permission Identity Information",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "Who am I logged in as?",
         "What is my AWS IAM username?",
@@ -40,7 +40,7 @@ def get_aws_identity_info(tool_input, cat):
     """
     try:
         identity_type, identity_name, identity_arn = get_identity_info()
-        if identity_type in ("user", "assumed-role"):
+        if identity_type in ("user"):
             return f"The username is {identity_name}."
         else:
             return f"I don't have a username, I am using an IAM role: {identity_arn}."
@@ -51,7 +51,7 @@ def get_aws_identity_info(tool_input, cat):
 
 @tool(
     "AWS Self-Permission Policies Information",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "What permissions do I currently have?",
         "List the policies attached to my AWS IAM identity.",
@@ -101,7 +101,7 @@ def get_policies(tool_input, cat):
 
 @tool(
     "AWS Self-Permission Account ID Retrieval",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "What is my AWS account ID?",
         "Show me my AWS account number.",
@@ -129,7 +129,7 @@ def get_account_id(tool_input, cat):
 
 @tool(
     "AWS Self-Permission Identity Full Details",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "Provide all details about my AWS IAM identity.",
         "What are my IAM identity details?",
@@ -163,7 +163,7 @@ Here are the Caller Identity Info:
 
 @tool(
     "AWS Self-Permission Identity Type Detection",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "Am I logged in as a user or a role?",
         "What type of IAM identity am I using?",
@@ -191,7 +191,7 @@ def get_identity_type(tool_input, cat):
 
 @tool(
     "AWS Self-Permission IAM Groups Retrieval",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "Which groups do I belong to?",
         "List my AWS IAM groups.",
@@ -282,7 +282,7 @@ def get_permissions(tool_input, cat):
 
 @tool(
     "AWS Self-Permission Effective Permissions Retrieval",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "What are my effective permissions?",
         "List my combined AWS IAM permissions.",
@@ -366,7 +366,7 @@ The effective permissions for the current IAM identity are:
 
 @tool(
     "AWS Self-Permission MFA Status Check",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "Is MFA enabled for my IAM user?",
         "What is the MFA status for my current IAM user?",
@@ -402,7 +402,7 @@ def get_mfa_status(tool_input, cat):
 
 @tool(
     "AWS Self-Permission Trust Policy Retrieval",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "Show me the trust policy for my IAM role.",
         "What is the trust policy for my current IAM role?",
@@ -446,7 +446,7 @@ The trust policies for the current IAM identity are:
 
 @tool(
     "AWS Self-Permission Account Summary Retrieval",
-    return_direct=False,
+    return_direct=True,
     examples=[
         "Show me my AWS account summary.",
         "What are the IAM statistics for my current AWS account?",
@@ -468,8 +468,10 @@ def get_account_summary(tool_input, cat):
     try:
         account_summary = iam_client.get_account_summary()
         return f"""
-The account summary is: 
+The account summary is:
+```json
 {json.dumps(account_summary['SummaryMap'], indent=4)}
+```
 """
     except Exception as e:
         log.error(f"Error fetching account summary: {e}")

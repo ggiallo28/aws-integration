@@ -18,6 +18,11 @@ iam_client = Boto3().get_client("iam")
 sts_client = Boto3().get_client("sts")
 
 
+def jsonIndentLimit(jsonString, indent, limit):
+    regexPattern = re.compile(f"\n({indent}){{{limit}}}(({indent})+|(?=(}}|])))")
+    return regexPattern.sub("", jsonString)
+
+
 class AwsIamPolicyTester:
     result = None
     status = None
@@ -47,33 +52,62 @@ class AwsIamPolicyTester:
 
     def get_markdown(self):
         try:
-            sources_separator, results_separator = " sources:", " results:"
-            _, matching_sources, matching_results = self.result.split("INFO:")
-
-            title_sources, array_sources = matching_sources.split(sources_separator)
-            title_sources = title_sources.strip() + sources_separator
-            array_sources = json.loads(array_sources)
-
-            title_results, array_results = matching_results.split(results_separator)
-            title_results = title_results.strip() + results_separator
-            array_results = json.loads(array_results)
-
-            def jsonIndentLimit(jsonString, indent, limit):
-                regexPattern = re.compile(
-                    f"\n({indent}){{{limit}}}(({indent})+|(?=(}}|])))"
+            head_separator, sources_separator, results_separator = (
+                "INFO:",
+                " sources:",
+                " results:",
+            )
+            if all(
+                separator in self.result
+                for separator in [head_separator, sources_separator, results_separator]
+            ):
+                _, matching_sources, matching_results = self.result.split(
+                    head_separator
                 )
-                return regexPattern.sub("", jsonString)
 
-            json_results = jsonIndentLimit(json.dumps(array_results, indent=4), "  ", 8)
-            json__sources = json.dumps(array_sources, indent=4)
+                title_sources, array_sources = matching_sources.split(sources_separator)
+                title_sources = title_sources.strip() + sources_separator
+                array_sources = json.loads(array_sources)
 
-            return f"""
+                title_results, array_results = matching_results.split(results_separator)
+                title_results = title_results.strip() + results_separator
+                array_results = json.loads(array_results)
+
+                json_results = jsonIndentLimit(
+                    json.dumps(array_results, indent=4), "  ", 8
+                )
+                json_sources = json.dumps(array_sources, indent=4)
+
+                return f"""
 {title_sources}
 ```json
-{json__sources}
+{json_sources}
 ```
 
 {title_results}
+```json
+{json_results}
+```
+"""
+            else:
+                self.result = self.result.split("\n]\n[\n    {\n")
+                array_sources = json.loads((self.result[0] + "]").replace(".", ""))
+                array_results = json.loads(("[{" + self.result[1]))
+
+                results_count = len(array_results)
+
+                json_results = jsonIndentLimit(
+                    json.dumps(array_results, indent=4), "  ", 8
+                )
+                json_sources = json.dumps(array_sources, indent=4)
+
+                return f"""
+Complete list of matching sources:
+```json
+{json_sources}
+```
+
+Complete list of {results_count} results:
 ```json
 {json_results}
 ```
@@ -237,15 +271,13 @@ class CheckAccessForm(CatForm):
     ask_confirm = True
 
     def _classify_identity(self, identity: str) -> str:
-        if re.match(r"^arn:aws:iam::\d{12}:user/[\w+=,.@-]+$", identity):
-            return identity, None
-        elif re.match(
+        if re.match(
             r"^arn:aws:iam::\d{12}:(role|assumed-role)/[\w+=,.@-]+(/[a-zA-Z_0-9+=,.@-]+)?$",
             identity,
         ):
             return None, identity
         else:
-            raise ValueError("Invalid identity ARN format")
+            return identity, None
 
     def submit(self, form_data):
         identity = form_data.get("identity")

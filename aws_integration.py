@@ -19,6 +19,7 @@ class Boto3Builder:
         profile_name: Optional[str] = None,
         aws_access_key_id: Optional[str] = None,
         aws_secret_access_key: Optional[str] = None,
+        aws_session_token: Optional[str] = None,
         endpoint_url: Optional[str] = None,
         iam_role_assigned: Optional[bool] = False,
     ):
@@ -26,6 +27,7 @@ class Boto3Builder:
         self.profile_name = profile_name
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
+        self.aws_session_token = aws_session_token
         self.endpoint_url = endpoint_url
         self.iam_role_assigned = iam_role_assigned
         self.region_name = region_name
@@ -33,9 +35,10 @@ class Boto3Builder:
     def set_profile_name(self, profile_name: str):
         self.profile_name = profile_name
 
-    def set_credentials(self, aws_access_key_id: str, aws_secret_access_key: str):
+    def set_credentials(self, aws_access_key_id: str, aws_secret_access_key: str, aws_session_token: str = None):
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
+        self.aws_session_token = aws_session_token
 
     def set_endpoint_url(self, endpoint_url: str):
         self.endpoint_url = endpoint_url
@@ -50,6 +53,8 @@ class Boto3Builder:
             if self.aws_access_key_id and self.aws_secret_access_key:
                 session_kwargs["aws_access_key_id"] = self.aws_access_key_id
                 session_kwargs["aws_secret_access_key"] = self.aws_secret_access_key
+                if self.aws_session_token:
+                    session_kwargs["aws_session_token"] = self.aws_session_token
             session = boto3.Session(**session_kwargs)
         return session
 
@@ -79,6 +84,9 @@ class AWSSettings(BaseModel):
     aws_secret_access_key: str = Field(
         default="", description="AWS secret access key for authentication."
     )
+    aws_session_token: str = Field(
+        default="", description="AWS session token for authentication."
+    )
     region_name: str = Field(
         default=DEFAULT_REGION, description="Default AWS region for the client."
     )
@@ -104,6 +112,7 @@ class AWSSettings(BaseModel):
             profile_name=settings.get("credentials_profile_name"),
             aws_access_key_id=settings.get("aws_access_key_id"),
             aws_secret_access_key=settings.get("aws_secret_access_key"),
+            aws_session_token=settings.get("aws_session_token"),
             endpoint_url=settings.get("endpoint_url"),
             iam_role_assigned=settings.get("iam_role_assigned"),
             region_name=settings.get("region_name", DEFAULT_REGION),

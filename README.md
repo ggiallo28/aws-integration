@@ -4,7 +4,7 @@
 [![Awesome plugin](https://custom-icon-badges.demolab.com/static/v1?label=&message=Awesome+plugin&color=000000&style=for-the-badge&logo=cheshire_cat_ai)](https://)
 [![awesome plugin](https://custom-icon-badges.demolab.com/static/v1?label=&message=awesome+plugin&color=F4F4F5&style=for-the-badge&logo=cheshire_cat_black)](https://)
 
-This plugin integrates Amazon Web Services (AWS) functionality into the Cheshire Cat AI, providing tools for AWS IAM policy testing and access management.
+This plugin integrates Amazon Web Services (AWS) functionality into the Cheshire Cat AI, providing tools for AWS IAM policy testing, access management, and cost analysis.
 
 ## Prerequisites
 
@@ -19,6 +19,7 @@ This plugin integrates Amazon Web Services (AWS) functionality into the Cheshire
 - Access Management for AWS Resources
 - Search for Users and Roles with Specific Permissions
 - Check Access Rights for Specific IAM Identities
+- AWS Cost Analysis with Tag Filtering
 
 ## Configuration
 
@@ -104,6 +105,23 @@ result = check_form.submit(form_data)
 print(result["output"])
 ```
 
+### AWS Cost Analysis
+
+Use the `get_aws_cost_analysis` tool to analyze AWS costs for a specified time period, with optional tag filtering.
+
+Example usage:
+```python
+# Analyze costs for the last 30 days
+result = get_aws_cost_analysis("30")
+
+# Analyze costs for the last 7 days, filtered by the tag "project:website"
+result = get_aws_cost_analysis("7 project:website")
+
+print(result)
+```
+
+The tool accepts input in the format: `"<days> [tag_key:tag_value]"`. If no tag is specified, it will analyze all costs for the given period.
+
 ## Development
 
 To start developing or modifying this plugin:
@@ -130,4 +148,3 @@ If you encounter any issues:
 2. Verify that your AWS region is set correctly in the plugin configuration.
 3. Look for error messages in the Cheshire Cat AI logs.
 4. If the issue persists, you can open an issue on the plugin's GitHub repository with a detailed description of the problem and any relevant error messages.
-

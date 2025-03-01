@@ -1,4 +1,5 @@
 from cat.mad_hatter.decorators import tool, hook, plugin
+from .aws_cost_analysis import analyze_aws_costs
 from . import Boto3
 from cat.log import log
 import json
@@ -476,3 +477,40 @@ The account summary is:
     except Exception as e:
         log.error(f"Error fetching account summary: {e}")
         return "An error occurred while fetching the account summary. Please check the AWS IAM client configuration."
+
+
+@tool(
+    "AWS Cost Analysis",
+    return_direct=True,
+    examples=[
+        "Analyze my AWS costs for the last 30 days",
+        "Show me the AWS cost analysis for the past week",
+        "What are my AWS expenses for the last 2 months?",
+        "Get a breakdown of my AWS costs",
+        "Provide an AWS cost analysis report",
+    ],
+)
+def get_aws_cost_analysis(tool_input, cat):
+    """
+    Analyze AWS costs for the specified number of days.
+
+    Use this tool when you need to get a detailed analysis of AWS costs for a specific time period.
+    The function will return a dictionary containing cost analysis results.
+
+    :param tool_input: The number of days to analyze (default: 30)
+    :return: Dictionary containing cost analysis results
+    """
+    try:
+        days = 30  # Default value
+        if tool_input:
+            days = int(tool_input)
+        cost_analysis = analyze_aws_costs(days)
+        return f"""
+Here is the AWS cost analysis for the last {days} days:
+```json
+{cost_analysis}
+```
+"""
+    except Exception as e:
+        log.error(f"Error analyzing AWS costs: {e}")
+        return "An error occurred while analyzing AWS costs. Please check the AWS configuration and try again."

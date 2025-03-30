@@ -6,6 +6,7 @@ import json
 
 iam_client = Boto3().get_client("iam")
 sts_client = Boto3().get_client("sts")
+ce_client = Boto3().get_client("ce")
 
 
 def get_identity_info():
@@ -480,35 +481,78 @@ The account summary is:
 
 
 @tool(
-    "AWS Cost Analysis",
-    return_direct=True,
+    "AWS Current Account Cost Analysis",
+    return_direct=False,
     examples=[
         "Analyze my AWS costs for the last 30 days",
         "Show me the AWS cost analysis for the past week",
         "What are my AWS expenses for the last 2 months?",
         "Get a breakdown of my AWS costs",
         "Provide an AWS cost analysis report",
+        "Get a monthly breakdown of AWS costs",
+        "Get costs for 14 days grouped monthly",
+        "Analyze AWS costs for 7 days with tag key 'Environment' and value 'prod'",
     ],
 )
 def get_aws_cost_analysis(tool_input, cat):
     """
-    Analyze AWS costs for the specified number of days.
+    Analyze AWS costs for the specified number of days, with optional granularity and tag filters.
 
     Use this tool when you need to get a detailed analysis of AWS costs for a specific time period.
     The function will return a dictionary containing cost analysis results.
 
-    :param tool_input: The number of days to analyze (default: 30)
+    Accepts a structured string like: "days=value,tag_key=value,tag_value=value,granularity=value"
+
+    :param days: The number of days to analyze (default: 30)
+    :param tag_key: The key of the tag to filter by (default: None)
+    :param tag_value: The value of the tag to filter by (default: None)
+    :param granularity: Granularity DAILY or MONTHLY of the data (default: DAILY)
     :return: Dictionary containing cost analysis results
     """
     try:
-        days = 30  # Default value
-        if tool_input:
-            days = int(tool_input)
-        cost_analysis = analyze_aws_costs(days)
+        days = 30
+        granularity = "DAILY"
+        tag_key = None
+        tag_value = None
+
+        def parse_named_string(input_str: str) -> dict:
+            result = {}
+            parts = input_str.split(",")
+            for part in parts:
+                if "=" in part:
+                    key, value = part.split("=", 1)
+                    result[key.strip()] = value.strip()
+            return result
+
+        if isinstance(tool_input, dict):
+            parsed = tool_input
+        elif isinstance(tool_input, str):
+            try:
+                parsed = json.loads(tool_input)
+                if not isinstance(parsed, dict):
+                    parsed = parse_named_string(tool_input)
+            except json.JSONDecodeError:
+                parsed = parse_named_string(tool_input)
+        else:
+            parsed = {}
+
+        days = int(parsed.get("days", days))
+        granularity = parsed.get("granularity", granularity).upper()
+        tag_key = parsed.get("tag_key", tag_key)
+        tag_value = parsed.get("tag_value", tag_value)
+
+        cost_analysis = analyze_aws_costs(
+            ce_client,
+            days=days,
+            granularity=granularity,
+            tag_key=tag_key,
+            tag_value=tag_value,
+        )
+
         return f"""
-Here is the AWS cost analysis for the last {days} days:
+Here is the AWS cost analysis for the last {days} days (granularity: {granularity}):
 ```json
-{cost_analysis}
+{json.dumps(cost_analysis)}
 ```
 """
     except Exception as e:

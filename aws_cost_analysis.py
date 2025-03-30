@@ -4,7 +4,7 @@ from cat.log import log
 
 
 def get_aws_costs(
-    start_date, end_date, granularity="DAILY", tag_key=None, tag_value=None
+    start_date, end_date, client, granularity="DAILY", tag_key=None, tag_value=None
 ):
     """
     Retrieve AWS costs for a specified time period, optionally filtered by tag.
@@ -16,25 +16,43 @@ def get_aws_costs(
     :param tag_value: The value of the tag to filter by (optional)
     :return: Dictionary containing cost data
     """
-    client = boto3.client("ce")
 
     group_by = [{"Type": "DIMENSION", "Key": "SERVICE"}]
     filter_expr = {}
 
-    if tag_key and tag_value:
+    if tag_key:
         group_by.append({"Type": "TAG", "Key": tag_key})
-        filter_expr = {"Tags": {"Key": tag_key, "Values": [tag_value]}}
 
-    response = client.get_cost_and_usage(
-        TimePeriod={
-            "Start": start_date.strftime("%Y-%m-%d"),
-            "End": end_date.strftime("%Y-%m-%d"),
-        },
-        Granularity=granularity,
-        Metrics=["BlendedCost"],
-        GroupBy=group_by,
-        Filter=filter_expr,
-    )
+        if tag_value:
+            filter_expr["Tags"] = {
+                "Key": tag_key,
+                "Values": [tag_value],
+                "MatchOptions": ["EQUALS"],
+            }
+        else:
+            filter_expr["Tags"] = {"Key": tag_key, "Values": [""]}
+
+    if filter_expr:
+        response = client.get_cost_and_usage(
+            TimePeriod={
+                "Start": start_date.strftime("%Y-%m-%d"),
+                "End": end_date.strftime("%Y-%m-%d"),
+            },
+            Granularity=granularity,
+            Metrics=["BlendedCost"],
+            GroupBy=group_by,
+            Filter=filter_expr,
+        )
+    else:
+        response = client.get_cost_and_usage(
+            TimePeriod={
+                "Start": start_date.strftime("%Y-%m-%d"),
+                "End": end_date.strftime("%Y-%m-%d"),
+            },
+            Granularity=granularity,
+            Metrics=["BlendedCost"],
+            GroupBy=group_by,
+        )
 
     return response
 
@@ -70,7 +88,9 @@ def get_total_cost(formatted_data):
     return sum(item["cost"] for item in formatted_data)
 
 
-def analyze_aws_costs(days=30, tag_key=None, tag_value=None):
+def analyze_aws_costs(
+    ce_client, days=30, granularity="DAILY", tag_key=None, tag_value=None
+):
     """
     Analyze AWS costs for the specified number of days, optionally filtered by tag.
 
@@ -79,10 +99,20 @@ def analyze_aws_costs(days=30, tag_key=None, tag_value=None):
     :param tag_value: The value of the tag to filter by (optional)
     :return: Dictionary containing cost analysis results
     """
+    if granularity == "MONTHLY":
+        days = 365
+
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
 
-    response = get_aws_costs(start_date, end_date, tag_key=tag_key, tag_value=tag_value)
+    response = get_aws_costs(
+        start_date,
+        end_date,
+        ce_client,
+        granularity=granularity,
+        tag_key=tag_key,
+        tag_value=tag_value,
+    )
     formatted_data = format_cost_data(response, tag_key)
     total_cost = get_total_cost(formatted_data)
 

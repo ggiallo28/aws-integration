@@ -4,7 +4,6 @@ from . import Boto3
 from cat.log import log
 import json
 
-
 def get_identity_info():
     sts_client = Boto3().get_client("sts")
     identity_info = sts_client.get_caller_identity()
@@ -213,6 +212,7 @@ def get_groups(tool_input, cat):
     AWS IAM user and does not take an identity as input.
     """
     try:
+        iam_client = Boto3().get_client("iam")
         identity_type, identity_name, identity_arn = get_identity_info()
         if identity_type == "user":
             user_groups = iam_client.list_groups_for_user(UserName=identity_name)
@@ -227,6 +227,7 @@ def get_groups(tool_input, cat):
 
 def get_permissions(tool_input, cat):
     try:
+        iam_client = Boto3().get_client("iam")
         identity_type, identity_name, identity_arn = get_identity_info()
         if identity_type in ["user", "role", "assumed-role"]:
             if identity_type == "user":
@@ -388,6 +389,7 @@ def get_mfa_status(tool_input, cat):
     and does not take an identity as input.
     """
     try:
+        iam_client = Boto3().get_client("iam")
         identity_type, identity_name, identity_arn = get_identity_info()
         if identity_type == "user":
             mfa_devices = iam_client.list_mfa_devices(UserName=identity_name)
@@ -424,6 +426,7 @@ def get_trust_policy(tool_input, cat):
     AWS IAM role and does not take an identity as input.
     """
     try:
+        iam_client = Boto3().get_client("iam")
         identity_type, identity_name, identity_arn = get_identity_info()
         if identity_type in ["role", "assumed-role"]:
             role_name = (
@@ -468,6 +471,7 @@ def get_account_summary(tool_input, cat):
     authenticated AWS account and does not take an identity as input.
     """
     try:
+        iam_client = Boto3().get_client("iam")
         account_summary = iam_client.get_account_summary()
         return f"""
 The account summary is:
@@ -510,6 +514,7 @@ def get_aws_cost_analysis(tool_input, cat):
     :return: Dictionary containing cost analysis results
     """
     try:
+        ce_client = Boto3().get_client("ce")
         days = 30
         granularity = "DAILY"
         tag_key = None

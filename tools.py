@@ -4,12 +4,9 @@ from . import Boto3
 from cat.log import log
 import json
 
-iam_client = Boto3().get_client("iam")
-sts_client = Boto3().get_client("sts")
-ce_client = Boto3().get_client("ce")
-
 
 def get_identity_info():
+    sts_client = Boto3().get_client("sts")
     identity_info = sts_client.get_caller_identity()
     arn_parts = identity_info["Arn"].split("/")
     identity_type = arn_parts[0].split(":")[-1]
@@ -75,6 +72,7 @@ def get_policies(tool_input, cat):
     identity that is making the request.
     """
     try:
+        iam_client = Boto3().get_client("iam")
         identity_type, identity_name, identity_arn = get_identity_info()
         if identity_type in ("user", "role", "assumed-role"):
             if identity_type == "user":
@@ -122,6 +120,7 @@ def get_account_id(tool_input, cat):
     and does not take an identity as input.
     """
     try:
+        sts_client = Boto3().get_client("sts")
         response = sts_client.get_caller_identity()
         return f"The AWS account ID is: {response['Account']}."
     except Exception as e:
@@ -151,6 +150,7 @@ def get_identity_information(tool_input, cat):
     and does not take an identity as input.
     """
     try:
+        sts_client = Boto3().get_client("sts")
         caller_identity = sts_client.get_caller_identity()
         return f"""
 Here are the Caller Identity Info:

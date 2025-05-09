@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -151,4 +152,21 @@ cython_debug/
 .idea/
 
 # Cheshire Cat Plugin settings
+=======
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+
+plugin.json
+>>>>>>> 7148be5 (fix: issue loation credentials)
 settings.json

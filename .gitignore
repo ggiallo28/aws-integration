@@ -170,3 +170,4 @@ env/
 plugin.json
 >>>>>>> 7148be5 (fix: issue loation credentials)
 settings.json
+.DS_Store
